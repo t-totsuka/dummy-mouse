@@ -89,7 +89,7 @@ graph TB
 
 | Layer | Choice / Version | Role in Feature | Notes |
 |-------|------------------|-----------------|-------|
-| Runtime | Go 1.22 以上（開発環境は 1.27.4） | 単一の静的 exe をビルドする | `CGO_ENABLED=0`, `-ldflags "-s -w -H=windowsgui"` |
+| Runtime | Go 1.26 以上（開発環境は 1.27.4） | 単一の静的 exe をビルドする | `CGO_ENABLED=0`, `-ldflags "-s -w -H=windowsgui"` |
 | OS 連携 | golang.org/x/sys/windows（最新） | `SendInput`, `GetCursorPos`, `SetCursorPos`, `SetWindowsHookExW`, `GetSystemMetrics`, `SetProcessDpiAwarenessContext`, `MessageBoxW` | `windows.NewLazySystemDLL("user32.dll")` で読み込む |
 | UI | fyne.io/systray v1.12.2 | タスクトレイのアイコン、ツールチップ、メニュー | Windows では cgo なしでビルドできることを確認済み（research.md） |
 | Assets | `.ico`（`go:embed`） | トレイのアイコン | Windows の systray は `.ico` 形式しか受け付けない |

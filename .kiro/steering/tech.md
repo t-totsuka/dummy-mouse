@@ -6,7 +6,7 @@ Windows API を直接呼ぶ、単一プロセスのタスクトレイ常駐ア�
 
 ## コア技術
 
-- **言語**: Go（1.22 以上）
+- **言語**: Go（1.26 以上。golang.org/x/sys の最新版が go 1.26 を要求するため）
 - **対象 OS**: Windows 10 / 11（x64）
 - **OS 連携**: `golang.org/x/sys/windows` 経由で `user32.dll` を呼ぶ（`GetCursorPos`, `SendInput`, `SetWindowsHookExW` など）
 - **タスクトレイ**: `fyne.io/systray`（Windows では cgo なしでビルドできる）
@@ -36,7 +36,7 @@ Windows API を直接呼ぶ、単一プロセスのタスクトレイ常駐ア�
 ## 開発環境
 
 ### 必要なツール
-- Go 1.22 以上（Windows 上で開発するか、`GOOS=windows` でクロスコンパイルする）
+- Go 1.26 以上（Windows 上で開発するか、`GOOS=windows` でクロスコンパイルする）
 
 ### よく使うコマンド
 ```bash
