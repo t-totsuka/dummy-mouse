@@ -66,7 +66,7 @@
   - _Depends: 1.2_
   - _Requirements: 4.4, 5.2, 5.3_
 
-- [ ] 3.2 Win32 によるカーソル操作と、自分の入力の見分けを実装する
+- [x] 3.2 Win32 によるカーソル操作と、自分の入力の見分けを実装する
   - ドメインのマウス抽象を実装する。移動は、固有の署名を付けた絶対座標の入力として送り、着地した位置がずれていたら補正する
   - 署名が付いた入力、または最後に指示した座標と同じ位置への注入された入力を、「自分の入力」と判定できるようにする
   - 完了条件: 常に動くユニットテストとして、自分の入力の判定（署名あり、補正分、他人の注入入力、本物の入力）と、座標の正規化（仮想スクリーンの端と中央）が通る。`MOUSEMOVER_INTERACTIVE=1` のときだけ動く実機テストでは、指定した座標へ移動し、元の位置に戻せる
@@ -123,3 +123,4 @@
 - 2.4: runner_test.go の advanceTo / waitPending / earliestDeadline は、タイマーを期限ちょうどに発火させるテスト用ヘルパー。Runner の後片付け（finishLap）は defer で動き、1 周が打ち切られても lastLapEnd と lastSeen を必ず更新する。途中で取りやめるかどうかの判定は、runLap のステップのループの中で、StepDelay の wait のあとに入れる
 - 2.5: 1 周の途中で CursorPos が失敗したときは、取りやめの条件 (a)（Tracker の時刻）だけで判定して 1 周を続ける。本物の操作はフック → Tracker の経路で検知する前提
 - 3.1: 実機テストは MOUSEMOVER_INTERACTIVE=1 のときだけ動く（requireInteractive）。ダイアログのテストは、さらに MOUSEMOVER_DIALOG=1 も必要。Win32 の構造体の配置は、user32_windows_test.go で amd64 の Sizeof / Offsetof を確かめている
+- 3.2: 絶対座標の正規化は ((x-origin)*65535 + span/2)/span（span = 幅 - 1）。Windows の実際の対応付け（切り捨て）とは 1px ずれることがあり、そのときは SetCursorPos で補正する。6.2 の実機確認で、補正がどのくらい起きるか、補正分のフックイベントが IsOwnInput で除外されるかを確かめること。補正が多ければ、正規化を ceil((x-origin)*65536/幅) に変えることを検討する
