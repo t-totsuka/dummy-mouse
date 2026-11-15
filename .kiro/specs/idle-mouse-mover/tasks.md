@@ -57,7 +57,7 @@
   - _Requirements: 2.4, 2.5, 3.3_
 
 - [ ] 3. Windows アダプター
-- [ ] 3.1 (P) Win32 API の呼び出し定義、DPI の設定、エラーダイアログを実装する
+- [x] 3.1 (P) Win32 API の呼び出し定義、DPI の設定、エラーダイアログを実装する
   - マウス入力の送信、カーソル位置の取得と設定、仮想スクリーンの大きさ、低レベルフック、メッセージループ、DPI の設定、メッセージボックスに必要な関数・構造体・定数を定義する
   - プロセスを Per-Monitor DPI Aware V2 にする処理と、エラーを表示するダイアログを用意する
   - go.mod / go.sum は編集しない（依存は 1.1 で固定済み）
@@ -122,3 +122,4 @@
 - 2.3: 開始位置が画面の範囲外にあるときは、まず開始位置を範囲内に収め、その位置を基準に 4 つの目標を計算する
 - 2.4: runner_test.go の advanceTo / waitPending / earliestDeadline は、タイマーを期限ちょうどに発火させるテスト用ヘルパー。Runner の後片付け（finishLap）は defer で動き、1 周が打ち切られても lastLapEnd と lastSeen を必ず更新する。途中で取りやめるかどうかの判定は、runLap のステップのループの中で、StepDelay の wait のあとに入れる
 - 2.5: 1 周の途中で CursorPos が失敗したときは、取りやめの条件 (a)（Tracker の時刻）だけで判定して 1 周を続ける。本物の操作はフック → Tracker の経路で検知する前提
+- 3.1: 実機テストは MOUSEMOVER_INTERACTIVE=1 のときだけ動く（requireInteractive）。ダイアログのテストは、さらに MOUSEMOVER_DIALOG=1 も必要。Win32 の構造体の配置は、user32_windows_test.go で amd64 の Sizeof / Offsetof を確かめている
