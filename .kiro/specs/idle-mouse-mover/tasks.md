@@ -97,7 +97,7 @@
   - _Depends: 2.1, 2.5, 3.3, 4_
   - _Requirements: 1.1, 3.1, 3.3, 4.4_
 
-- [ ] 5.2 配布用 exe のビルド手順を用意する
+- [x] 5.2 配布用 exe のビルド手順を用意する
   - cgo なし、コンソールなし、デバッグ情報なしで dist に exe を出力するビルドスクリプトを用意する
   - README に、起動オプション、終了方法、ビルドコマンドを書く
   - 完了条件: スクリプトを実行すると dist/mousemover.exe ができ、`go version -m` で `CGO_ENABLED=0` と `-H=windowsgui` が確認できる
@@ -127,3 +127,4 @@
 - 3.3: フックはプロセスに 1 つだけ（2 回目の StartHook はエラー）。コールバックは sync.Once で 1 回だけ作る。フックのスレッドでは UnlockOSThread を呼ばない（レビューの提案を受けて修正。unhook に失敗しても、スレッドの終了で OS がフックを外す）。onActivity はすぐに戻る処理にすること。実機での動作は 6.2 で確認する
 - 4: Windows の systray.Quit は、onExit をクリックの goroutine で呼ぶ。そのため tray.Run は OnQuit を sync.Once で包み、OnQuit が終わってから戻るようにした（レビューで差し戻され、修正済み）。イベントループが異常終了した場合は、OnReady が呼ばれないまま OnQuit が呼ばれることがある。main の OnQuit は、Runner が起動していない場合でも待ち続けないこと
 - 5.1: main の処理は run(args, deps) にまとめ、deps に関数を差し込んでテストする。OnQuit は Runner の終了を最大 5 秒待ち、hook.Stop のエラーは無視する（ログを出さない設計のため）
+- 5.2: -trimpath を付けると、ビルド情報から -ldflags が消える（go version -m で -H=windowsgui を確かめられない）。そのため付けていない
