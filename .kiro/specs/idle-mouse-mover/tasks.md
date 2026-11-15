@@ -25,7 +25,7 @@
   - _Boundary: Config_
   - _Requirements: 3.4, 4.1, 4.2, 4.3, 4.4_
 
-- [ ] 2.2 (P) 最後のユーザー操作の時刻を記録する仕組みを実装する
+- [x] 2.2 (P) 最後のユーザー操作の時刻を記録する仕組みを実装する
   - 起動した時刻で初期化し、操作があるたびに時刻を更新する。今より古い時刻を渡されても戻らない
   - フックのスレッドから呼べるよう、ロックを取らずにスレッドセーフにする
   - jiggle パッケージは常にコンパイルできる状態に保ち、検証は `go test ./internal/jiggle -run Tracker` で行う
@@ -118,3 +118,4 @@
 - 1.1: golang.org/x/sys の最新版（v0.50.0）が go 1.26 を要求するため、go.mod の go の指定を 1.26.0 にした（steering の tech.md と design.md も更新済み）。依存はルートの tools.go（ビルドタグ tools）で固定している。go.mod / go.sum は 1.1 以外のタスクで編集しない
 - 1.2: fakeClock の Advance は、期限が来たタイマーを期限順に発火させる（発火で渡す時刻は Advance 後の now）。起こされた goroutine が登録し直したタイマーは、同じ Advance の中では発火しない。Runner のテストは、PollInterval / StepDelay 以下の幅で BlockUntil と Advance を交互に呼ぶこと。fakeMouse の SetOnMoveTo フックの中で SetPos を呼んでも、MoveTo が成功すると上書きされる。ステップの間のカーソルのずれは、「BlockUntil → SetPos → Advance」で表現すること
 - 2.1: `-h` / `-help` は使い方を日本語のエラーとして返す。main ではほかの不正なオプションと同じく、ダイアログを出して exit 2 で終わる扱いになる
+- 2.2: Tracker.LastActivity は monotonic 時計の値を持たない time.Time を返す。時刻の比較には == ではなく Equal / Before / Sub を使うこと
