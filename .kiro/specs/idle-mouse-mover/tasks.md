@@ -9,7 +9,7 @@
   - 完了条件: `CGO_ENABLED=0` の `go build ./...` と `go vet ./...` がエラーなしで通る。`go mod tidy` を実行しても、2 つの依存が go.mod に残る
   - _Requirements: 5.1_
 
-- [ ] 1.2 ドメインの共通型、実時間の時計、テスト用の偽物を用意する
+- [x] 1.2 ドメインの共通型、実時間の時計、テスト用の偽物を用意する
   - 座標、仮想スクリーンの範囲、マウス操作と時計の抽象、動作設定（アイドル時間、移動量、ポーリング間隔 1 秒、ステップ間隔 50ms）を定義する
   - 実時間で動く時計の実装を用意する
   - テスト専用に、手動で時間を進められる偽の時計と、座標と呼び出し履歴を記録しエラーを注入できる偽のマウスを用意する
@@ -116,3 +116,4 @@
 
 ## Implementation Notes
 - 1.1: golang.org/x/sys の最新版（v0.50.0）が go 1.26 を要求するため、go.mod の go の指定を 1.26.0 にした（steering の tech.md と design.md も更新済み）。依存はルートの tools.go（ビルドタグ tools）で固定している。go.mod / go.sum は 1.1 以外のタスクで編集しない
+- 1.2: fakeClock の Advance は、期限が来たタイマーを期限順に発火させる（発火で渡す時刻は Advance 後の now）。起こされた goroutine が登録し直したタイマーは、同じ Advance の中では発火しない。Runner のテストは、PollInterval / StepDelay 以下の幅で BlockUntil と Advance を交互に呼ぶこと。fakeMouse の SetOnMoveTo フックの中で SetPos を呼んでも、MoveTo が成功すると上書きされる。ステップの間のカーソルのずれは、「BlockUntil → SetPos → Advance」で表現すること
