@@ -480,3 +480,52 @@ func TestRunnerReturnsOnCancelDuringLap(t *testing.T) {
 		t.Errorf("cancel のあとの MoveTo の合計 = %d 回, want 1", n)
 	}
 }
+
+// (13) 1 周の途中の取りやめ判定で CursorPos が失敗したときは、条件 (a)（Tracker の時刻）だけで判定する（2.4, 2.5）。
+// 操作が記録されていなければ、位置が変わっていても（取得できないので）1 周を続ける。
+func TestRunnerMidLapCursorPosErrorContinuesLap(t *testing.T) {
+	h := startRunner(t, runnerOrigin)
+	h.advanceTo(t, lapOffset(0)) // 1 歩目の MoveTo のあと、StepDelay の待ちに入った
+	if n := len(h.recorded()); n != 1 {
+		t.Fatalf("1 歩目のあとの MoveTo = %d 回, want 1", n)
+	}
+	h.mouse.SetPos(Point{X: 800, Y: 600}) // 位置は変わったが、
+	h.mouse.FailCursorPos(3, nil)         // 2〜4 歩目の前の判定ではどれも位置を取れない
+
+	h.advanceTo(t, lapOffset(time.Second))
+	ls := laps(t, h.recorded())
+	if len(ls) != 1 {
+		t.Fatalf("1 周の回数 = %d, want 1（位置を取れなくても 1 周を続ける）", len(ls))
+	}
+	assertTargets(t, ls[0], runnerOrigin)
+	if got := h.mouse.Pos(); got != runnerOrigin {
+		t.Errorf("1 周のあとの位置 = %v, want %v", got, runnerOrigin)
+	}
+	if got := h.tracker.LastActivity(); !got.Equal(runnerStart) {
+		t.Errorf("LastActivity = %v, want 起動時刻（位置を取れない判定を操作と見なさない）", got)
+	}
+	select {
+	case err := <-h.done:
+		t.Fatalf("CursorPos の失敗で Run が戻りました: %v", err)
+	default:
+	}
+}
+
+// (14) 1 周の途中の取りやめ判定で CursorPos が失敗しても、操作が記録されていれば条件 (a) で取りやめる（2.4, 2.5）。
+func TestRunnerMidLapCursorPosErrorStillAbortsOnActivity(t *testing.T) {
+	h := startRunner(t, runnerOrigin)
+	h.advanceTo(t, lapOffset(20*time.Millisecond)) // 1 歩目のあと、StepDelay の途中
+	if n := len(h.recorded()); n != 1 {
+		t.Fatalf("1 歩目のあとの MoveTo = %d 回, want 1", n)
+	}
+	h.tracker.MarkActivity(h.clk.Now())
+	h.mouse.FailCursorPos(1, nil) // 2 歩目の前の判定では位置を取れない
+
+	h.advanceTo(t, lapOffset(time.Second))
+	if n := len(h.recorded()); n != 1 {
+		t.Fatalf("操作のあとの MoveTo = %d 回, want 1（条件 (a) で取りやめる）", n)
+	}
+	if got, want := h.mouse.Pos(), (Point{100, 90}); got != want {
+		t.Errorf("取りやめたあとの位置 = %v, want %v", got, want)
+	}
+}

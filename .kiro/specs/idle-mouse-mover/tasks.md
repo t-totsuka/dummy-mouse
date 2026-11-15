@@ -104,7 +104,7 @@
   - _Requirements: 5.1_
 
 - [ ] 6. 検証
-- [ ] 6.1 全体のテストと静的解析を通す
+- [x] 6.1 全体のテストと静的解析を通す
   - `go vet ./...` と `go test ./...` を実行する。cgo が使える環境では `-race` 付きでも実行する
   - 完了条件: すべてのテストが通り、vet の警告がない。設計の Testing Strategy にある Unit Tests の項目に、それぞれ対応するテストがある
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4, 2.5, 4.1, 4.2, 4.3, 4.4_
@@ -128,3 +128,4 @@
 - 4: Windows の systray.Quit は、onExit をクリックの goroutine で呼ぶ。そのため tray.Run は OnQuit を sync.Once で包み、OnQuit が終わってから戻るようにした（レビューで差し戻され、修正済み）。イベントループが異常終了した場合は、OnReady が呼ばれないまま OnQuit が呼ばれることがある。main の OnQuit は、Runner が起動していない場合でも待ち続けないこと
 - 5.1: main の処理は run(args, deps) にまとめ、deps に関数を差し込んでテストする。OnQuit は Runner の終了を最大 5 秒待ち、hook.Stop のエラーは無視する（ログを出さない設計のため）
 - 5.2: -trimpath を付けると、ビルド情報から -ldflags が消える（go version -m で -H=windowsgui を確かめられない）。そのため付けていない
+- 6.1: この環境には C コンパイラーがなく、-race は実行できない（Tracker の並行性のテストは振る舞いだけを確かめている）。gcc がある環境で `CGO_ENABLED=1 go test -race ./...` を実行すること
