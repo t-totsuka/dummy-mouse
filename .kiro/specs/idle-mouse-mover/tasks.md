@@ -33,7 +33,7 @@
   - _Boundary: Tracker_
   - _Requirements: 1.1, 1.2_
 
-- [ ] 2.3 1 周分の目標座標の計算を実装する
+- [x] 2.3 1 周分の目標座標の計算を実装する
   - 開始位置から、上 → 右 → 下 → 左の順に移動量ずつ動いたときの 4 つの座標を出す。4 番目は必ず開始位置にする
   - 各座標を仮想スクリーンの範囲内に収める
   - 2.2 と同じ jiggle パッケージ（同じコンパイル単位）なので、2.2 のあとに順番に行う。検証は `go test ./internal/jiggle -run Lap` で行う
@@ -119,3 +119,4 @@
 - 1.2: fakeClock の Advance は、期限が来たタイマーを期限順に発火させる（発火で渡す時刻は Advance 後の now）。起こされた goroutine が登録し直したタイマーは、同じ Advance の中では発火しない。Runner のテストは、PollInterval / StepDelay 以下の幅で BlockUntil と Advance を交互に呼ぶこと。fakeMouse の SetOnMoveTo フックの中で SetPos を呼んでも、MoveTo が成功すると上書きされる。ステップの間のカーソルのずれは、「BlockUntil → SetPos → Advance」で表現すること
 - 2.1: `-h` / `-help` は使い方を日本語のエラーとして返す。main ではほかの不正なオプションと同じく、ダイアログを出して exit 2 で終わる扱いになる
 - 2.2: Tracker.LastActivity は monotonic 時計の値を持たない time.Time を返す。時刻の比較には == ではなく Equal / Before / Sub を使うこと
+- 2.3: 開始位置が画面の範囲外にあるときは、まず開始位置を範囲内に収め、その位置を基準に 4 つの目標を計算する
