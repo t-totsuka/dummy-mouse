@@ -66,12 +66,12 @@ func (r *Runner) tick(ctx context.Context) error {
 	if now.Sub(base) < r.s.IdleThreshold {
 		return nil
 	}
-	return r.runLap(ctx, pos)
+	return r.runLap(ctx, now, pos)
 }
 
-// runLap は start から 1 周させる。終わるか打ち切ったら lastLapEnd と lastSeen を更新する。
+// runLap は lapStart の時刻に start から 1 周させる。終わるか打ち切ったら lastLapEnd と lastSeen を更新する。
 // ctx が cancel されたときだけ error を返す。
-func (r *Runner) runLap(ctx context.Context, start Point) error {
+func (r *Runner) runLap(ctx context.Context, lapStart time.Time, start Point) error {
 	defer r.finishLap()
 
 	bounds, err := r.m.Bounds()
@@ -84,12 +84,29 @@ func (r *Runner) runLap(ctx context.Context, start Point) error {
 			if err := r.wait(ctx, r.s.StepDelay); err != nil {
 				return err
 			}
+			if r.userInterrupted(lapStart, targets[i-1]) {
+				return nil // 残りの移動を取りやめ、カーソルはユーザーが置いた位置のままにする（2.4）
+			}
 		}
 		if err := r.m.MoveTo(target); err != nil {
 			return nil // 1 周を打ち切り、次の周期に再び試す
 		}
 	}
 	return nil
+}
+
+// userInterrupted は 1 周の途中でユーザーが操作したかを判定する（2.4）。
+// (a) 1 周を始めたあとに操作が記録された、(b) カーソルが直前の目標座標からずれている、のどちらかで true。
+// (b) のときは、その変化を操作として記録する。位置を取れないときは (a) だけで判定する。
+func (r *Runner) userInterrupted(lapStart time.Time, prevTarget Point) bool {
+	if r.t.LastActivity().After(lapStart) {
+		return true
+	}
+	if p, err := r.m.CursorPos(); err == nil && p != prevTarget {
+		r.t.MarkActivity(r.c.Now())
+		return true
+	}
+	return false
 }
 
 // finishLap は 1 周の終了（または打ち切り）を記録する。
